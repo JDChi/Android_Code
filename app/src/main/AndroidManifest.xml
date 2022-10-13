@@ -21,9 +21,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".features.RevealAnimationActivity">
-        </activity>
+        <activity android:name=".features.RevealAnimationActivity"></activity>
+        <!--        <activity-->
+        <!--            android:name=".features.FloatingWindowActivity"-->
+        <!--            android:exported="true">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MAIN" />-->
+
+        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity>-->
+        <activity android:name=".features.screenshot.ScreenshotActivity" />
+
+
+        <service
+            android:name=".features.screenshot.ScreenshotService"
+            android:foregroundServiceType="mediaProjection" />
     </application>
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 
 </manifest>
