@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,8 +39,11 @@ class ScreenshotActivity : ComponentActivity() {
         startMediaProjectionForegroundService()
         setContent {
             takeAScreenshotUI()
+            loadingUI()
         }
     }
+
+
 
     private fun createMediaProjectionNotificationChannel() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -68,6 +72,11 @@ class ScreenshotActivity : ComponentActivity() {
                 Text(text = "start take a screenshot")
             }
         }
+    }
+
+    @Composable
+    private fun loadingUI() {
+        CircularProgressIndicator()
     }
 
     private fun takeAScreenshot() {

@@ -22,6 +22,7 @@ import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.view.Display
 import android.view.WindowManager
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -50,7 +51,7 @@ class Shooter(context: Context, reqCode: Int, data: Intent?) {
 
     //using a default path.
     private val savedPath: String
-        private get() {
+        get() {
             if (TextUtils.isEmpty(mLocalUrl)) {
                 mLocalUrl =
                     (context!!.getExternalFilesDir("screenshot")!!.absoluteFile.toString() + "/"
@@ -105,25 +106,20 @@ class Shooter(context: Context, reqCode: Int, data: Intent?) {
         hasPermission = true
         mOnShotListener = onShotListener
         virtualDisplay()
-        val handler = Handler()
-        handler.postDelayed(
-            {
-                val image: Image = mImageReader!!.acquireLatestImage()
-                SaveTask().doInBackground(image)
-            },
-            800
-        )
-        //this is a delay due to that record screen permission dialog has not dismissed on some devices cause take dialog graphic in screenshot
-        //.@see<a href="https://github.com/weizongwei5/AndroidScreenShot_SysApi/issues/4">issues</a>
+        GlobalScope.launch (Dispatchers.Main){
+            delay(800)
+            val image: Image = mImageReader!!.acquireLatestImage()
+            val isSuccess = saveImageToFile(image)
+            if (isSuccess) {
+                mOnShotListener?.onFinish(savedPath)
+            } else {
+                mOnShotListener?.onError()
+            }
+        }
     }
 
-    inner class SaveTask() :
-        AsyncTask<Image?, Void?, Bitmap?>() {
-        public override fun doInBackground(vararg params: Image?): Bitmap? {
-            if ((params.isEmpty()) || (params[0] == null)) {
-                return null
-            }
-            val image: Image = params[0]!!
+    private suspend fun saveImageToFile(image: Image): Boolean {
+        val result = withContext(Dispatchers.IO) {
             val width: Int = image.width
             val height: Int = image.height
             val planes: Array<Plane> = image.planes
@@ -153,31 +149,24 @@ class Shooter(context: Context, reqCode: Int, data: Intent?) {
                     out.close()
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
-                    if (mOnShotListener != null) mOnShotListener!!.onError()
                     release()
-                    return null
+                    return@withContext false
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    if (mOnShotListener != null) mOnShotListener!!.onError()
                     release()
-                    return null
+                    return@withContext false
                 }
             }
             if (bitmap != null && !bitmap.isRecycled) {
                 bitmap.recycle()
             }
-            mVirtualDisplay?.release()
-            mMediaProjection?.stop()
-            mOnShotListener?.onFinish(savedPath)
-            return null
+            release()
+            return@withContext true
         }
-
-        override fun onPostExecute(bitmap: Bitmap?) {
-            super.onPostExecute(bitmap)
-        }
+        return result
     }
 
-    fun release() {
+    private fun release() {
         mVirtualDisplay?.release()
         mMediaProjection?.stop()
     }
