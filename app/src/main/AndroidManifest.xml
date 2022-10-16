@@ -22,15 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".features.RevealAnimationActivity"></activity>
-        <!--        <activity-->
-        <!--            android:name=".features.FloatingWindowActivity"-->
-        <!--            android:exported="true">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.MAIN" />-->
-
-        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-        <!--            </intent-filter>-->
-        <!--        </activity>-->
+        <activity android:name=".features.FloatingWindowActivity"></activity>
         <activity android:name=".features.screenshot.ScreenshotActivity" />
 
 
